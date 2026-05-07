@@ -1,0 +1,18 @@
+package com.levi.demo.infrastructure.repository;
+
+import com.levi.demo.domain.model.Sector;
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.Optional;
+
+public interface SectorJpaRepository extends JpaRepository<Sector, Long> {
+    Optional<Sector> findByName(String name);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select s from Sector s where s.id = :id")
+    Optional<Sector> findByIdForUpdate(@Param("id") Long id);
+}
