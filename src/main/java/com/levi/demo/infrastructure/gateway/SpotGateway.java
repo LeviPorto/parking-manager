@@ -23,6 +23,12 @@ public class SpotGateway implements SpotRepository {
     }
 
     @Override
+    public Optional<Spot> findByIdForUpdate(Long id) {
+        return repository.findByIdForUpdate(id);
+    }
+
+
+    @Override
     public Optional<Spot> findByCoordinatesForUpdate(BigDecimal lat, BigDecimal lng) {
         return repository.findByCoordinatesForUpdate(lat, lng);
     }

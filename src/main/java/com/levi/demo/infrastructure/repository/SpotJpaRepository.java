@@ -14,7 +14,20 @@ public interface SpotJpaRepository extends JpaRepository<Spot, Long> {
     Optional<Spot> findByExternalId(Long externalId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select s from Spot s where s.lat = :lat and s.lng = :lng")
-    Optional<Spot> findByCoordinatesForUpdate(@Param("lat") BigDecimal lat,
-                                              @Param("lng") BigDecimal lng);
+    @Query("select s from Spot s where s.id = :id")
+    Optional<Spot> findByIdForUpdate(@Param("id") Long id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        select s
+        from Spot s
+        join fetch s.sector
+        where s.lat = :lat
+          and s.lng = :lng
+    """)
+    Optional<Spot> findByCoordinatesForUpdate(
+            @Param("lat") BigDecimal lat,
+            @Param("lng") BigDecimal lng
+    );
+
 }

@@ -1,11 +1,13 @@
 package com.levi.demo.api.controller;
 
+import com.levi.demo.api.dto.RevenueRequest;
 import com.levi.demo.api.dto.RevenueResponse;
 import com.levi.demo.api.mapper.RevenueMapper;
 import com.levi.demo.application.port.in.GetRevenue;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,11 +26,8 @@ public class RevenueController {
     }
 
     @GetMapping("/revenue")
-    public RevenueResponse getRevenue(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam String sector
-    ) {
-        log.info("Getting revenue for sector {} and date {}", sector, date);
-        return mapper.toResponse(getRevenue.retrieve(date, sector));
+    public RevenueResponse getRevenue(@RequestBody RevenueRequest request) {
+        return mapper
+                .toResponse(getRevenue.retrieve(request.date(), request.sector()));
     }
 }

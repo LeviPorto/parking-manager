@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -47,8 +48,8 @@ class RevenueControllerIT {
                 ));
 
         mockMvc.perform(get("/revenue")
-                        .param("date", "2026-05-05")
-                        .param("sector", "A"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"date\": \"2026-05-05\", \"sector\": \"A\"}"))
                 .andExpect(status().isOk());
     }
 
@@ -59,8 +60,8 @@ class RevenueControllerIT {
                 .retrieve(eq(LocalDate.of(2026, 5, 5)), eq("A"));
 
         mockMvc.perform(get("/revenue")
-                        .param("date", "2026-05-05")
-                        .param("sector", "A"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"date\": \"2026-05-05\", \"sector\": \"A\"}"))
                 .andExpect(status().isInternalServerError());
     }
 }

@@ -48,10 +48,10 @@ public class PricingService {
     public BigDecimal calculateOccupancyAmount(ParkingSession session, LocalDateTime exitTime) {
         long minutes = Duration.between(session.getEntryTime(), exitTime).toMinutes();
 
-        if (minutes <= FREE_PARKING_TOLERANCE_MINUTES) {
+        /*if (minutes <= FREE_PARKING_TOLERANCE_MINUTES) {
             log.info("Parking session {} was free", session.getId());
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
-        }
+        }*/
 
         long hours = (long) Math.ceil(minutes / 60.0);
 

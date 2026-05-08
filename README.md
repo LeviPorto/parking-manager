@@ -18,6 +18,7 @@ The project was built using Java 21 and Spring Boot following Clean Architecture
 - Gradle
 - JUnit 5
 - Mockito
+- Flyway
 
 ## Architecture
 
@@ -66,8 +67,16 @@ Occupancy multiplier is dynamically calculated based on sector occupancy rate.
 
 ### Running
 
+Linux/macOS:
+
 ```bash
-docker compose up -d
+docker compose down -v && docker compose up --build
+```
+
+Windows PowerShell:
+
+```bash
+docker compose down -v; docker compose up --build
 ```
 
 ### Explanation
@@ -82,6 +91,30 @@ During startup, the application consumes the `/garage` endpoint provided by the 
 
 After the initialization process, the application starts listening for parking events through the `/webhook` endpoint, processing vehicle entry and exit events in real time.
 
+### Important Notes
+
+#### Recreate Database
+
+The application uses Docker volumes to persist the MySQL database data.
+
+To ensure the garage simulation always starts with a clean state and avoids leftover data from previous executions, it is recommended to remove the containers and volumes before running the project again:
+
+```bash
+docker compose down -v
+```
+
+This removes the persisted database volume, allowing Flyway migrations and the garage initialization flow to start from an empty state.
+
+#### Simulator Behavior
+
+During the garage simulation, it was noticed that most `EXIT` events happen in less than 30 minutes after the vehicle entry.
+
+Because of the pricing rule implemented, these sessions result in a final amount of `0`.
+
+To make revenue testing easier and faster during local executions, the free parking validation rule can be temporarily commented out.
+
+However, even with this change, the difference between `entry_time` and `exit_time` still needs to be greater than 1 minute. Otherwise, the calculated amount may still result in `0` due to time rounding/charge calculation behavior.
+
 ## API Endpoints
 
 ### Parking Webhook
@@ -92,7 +125,7 @@ Processes parking events sent by simulator.
 
 ### Revenue
 
-GET `/revenue?date=2026-05-05&sector=A`
+GET `/revenue`
 
 Returns sector revenue for a given day.
 
@@ -109,7 +142,7 @@ The project contains:
 
 - Integration tests for:
     - Controllers
-    - Gateways
+    - Repositories
     - Transactional flows
 
 ### Running
@@ -118,39 +151,26 @@ The project contains:
 ./gradlew test
 ```
 
-## Important Design Decisions
-
-### Revenue calculation
-
-Revenue is calculated dynamically from parking sessions instead of storing aggregated values.
-This avoids data inconsistency and simplifies transactional logic.
+## Design Explanations
 
 ### Idempotency
 
-#### Garage Initialization
+Garage initialization avoids duplicated data during repeated executions.
 
-The garage synchronization flow avoids duplicated data during repeated executions.
+Parking events are also validated by entity status before processing, helping prevent duplicated event handling and invalid state transitions.
 
-- `Sector` entities are identified by their `name`;
-- `Spot` entities are identified by their `externalId`.
+### Concurrency and Consistency
 
-This ensures the initialization can run multiple times safely.
+Pessimistic locking was applied only at the parking spot level to prevent concurrent occupation or release of the same spot simultaneously.
 
-#### Event Processing
+Consistency is additionally reinforced through database constraints and transactional boundaries, ensuring atomic updates and avoiding partial or invalid states during failures or concurrent operations.
 
-Parking events are validated using entity status before processing.
+### Scalability
 
-Examples:
+The application was designed with clear separation of responsibilities and stateless behavior, allowing horizontal scaling of application instances if necessary.
 
-- a spot cannot be occupied twice;
-- a parking session cannot be finished more than once.
+### Revenue endpoint and calculation
 
-This helps prevent duplicated event processing and inconsistent state transitions.
+The `/revenue` endpoint accepts parameters as a JSON request body following the challenge spec. In production, query params would be preferred for better compatibility with proxies and HTTP caches.
 
-### Concurrency
-
-Pessimistic locking was used for spot and sector updates in order to avoid race conditions during concurrent `PARKED` events.
-
-This approach prioritizes data consistency over throughput, ensuring that multiple vehicles cannot occupy the same parking spot simultaneously.
-
-As a trade-off, pessimistic locks may increase database contention and reduce performance under high concurrency scenarios.
+Revenue is calculated dynamically from parking session data instead of maintaining aggregated counters, reducing synchronization complexity and avoiding inconsistent financial data.

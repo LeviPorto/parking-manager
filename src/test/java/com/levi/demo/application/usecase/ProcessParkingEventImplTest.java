@@ -121,9 +121,6 @@ class ProcessParkingEventImplTest {
         when(spotRepository.findByCoordinatesForUpdate(command.lat(), command.lng()))
                 .thenReturn(Optional.of(spot));
 
-        when(sectorRepository.findByIdForUpdate(spot.getSector().getId()))
-                .thenReturn(Optional.of(sector));
-
         when(pricingService.calculateOccupancyMultiplier(sector))
                 .thenReturn(new BigDecimal("1.00"));
 
@@ -188,17 +185,14 @@ class ProcessParkingEventImplTest {
                 () -> processParkingEvent.execute(command)
         );
 
-        verify(sectorRepository, never()).findByIdForUpdate(any());
         verify(parkingSessionRepository, never()).save(any());
     }
 
     @Test
     void shouldThrowExceptionWhenSectorNotFoundOnPark() {
-        Sector sector = new Sector("A", new BigDecimal("40.50"), 10);
-
         Spot spot = new Spot(
                 1L,
-                sector,
+                null,
                 new BigDecimal("-23.561684"),
                 new BigDecimal("-46.655981")
         );
@@ -222,9 +216,6 @@ class ProcessParkingEventImplTest {
 
         when(spotRepository.findByCoordinatesForUpdate(command.lat(), command.lng()))
                 .thenReturn(Optional.of(spot));
-
-        when(sectorRepository.findByIdForUpdate(spot.getSector().getId()))
-                .thenReturn(Optional.empty());
 
         assertThrows(
                 SectorNotFoundException.class,
@@ -266,6 +257,9 @@ class ProcessParkingEventImplTest {
 
         when(parkingSessionRepository.findActiveByLicensePlate("ABC1234"))
                 .thenReturn(Optional.of(session));
+
+        when(spotRepository.findByIdForUpdate(session.getSpot().getId()))
+                .thenReturn(Optional.of(spot));
 
         when(pricingService.calculateOccupancyAmount(session, command.exitTime()))
                 .thenReturn(new BigDecimal("40.50"));

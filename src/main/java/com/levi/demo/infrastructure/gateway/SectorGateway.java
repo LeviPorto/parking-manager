@@ -22,11 +22,6 @@ public class SectorGateway implements SectorRepository {
     }
 
     @Override
-    public Optional<Sector> findByIdForUpdate(Long id) {
-        return repository.findByIdForUpdate(id);
-    }
-
-    @Override
     public Sector save(Sector sector) {
         return repository.save(sector);
     }

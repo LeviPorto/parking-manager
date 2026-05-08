@@ -71,9 +71,7 @@ class PricingServiceTest {
         Sector sector = mock(Sector.class);
         when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.10"));
 
-        BigDecimal multiplier = pricingService.calculateOccupancyMultiplier(sector);
-
-        assertEquals(new BigDecimal("0.90"), multiplier);
+        assertEquals(new BigDecimal("0.90"), pricingService.calculateOccupancyMultiplier(sector));
     }
 
     @Test
@@ -81,9 +79,7 @@ class PricingServiceTest {
         Sector sector = mock(Sector.class);
         when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.40"));
 
-        BigDecimal multiplier = pricingService.calculateOccupancyMultiplier(sector);
-
-        assertEquals(new BigDecimal("1.00"), multiplier);
+        assertEquals(new BigDecimal("1.00"), pricingService.calculateOccupancyMultiplier(sector));
     }
 
     @Test
@@ -91,9 +87,7 @@ class PricingServiceTest {
         Sector sector = mock(Sector.class);
         when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.70"));
 
-        BigDecimal multiplier = pricingService.calculateOccupancyMultiplier(sector);
-
-        assertEquals(new BigDecimal("1.10"), multiplier);
+        assertEquals(new BigDecimal("1.10"), pricingService.calculateOccupancyMultiplier(sector));
     }
 
     @Test
@@ -101,8 +95,46 @@ class PricingServiceTest {
         Sector sector = mock(Sector.class);
         when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.90"));
 
-        BigDecimal multiplier = pricingService.calculateOccupancyMultiplier(sector);
+        assertEquals(new BigDecimal("1.25"), pricingService.calculateOccupancyMultiplier(sector));
+    }
 
-        assertEquals(new BigDecimal("1.25"), multiplier);
+    @Test
+    void shouldReturnNormalMultiplierWhenOccupancyIsExactly25Percent() {
+        Sector sector = mock(Sector.class);
+        when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.25"));
+
+        assertEquals(new BigDecimal("1.00"), pricingService.calculateOccupancyMultiplier(sector));
+    }
+
+    @Test
+    void shouldReturnNormalMultiplierWhenOccupancyIsExactly50Percent() {
+        Sector sector = mock(Sector.class);
+        when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.50"));
+
+        assertEquals(new BigDecimal("1.00"), pricingService.calculateOccupancyMultiplier(sector));
+    }
+
+    @Test
+    void shouldReturnIncreasedMultiplierWhenOccupancyIsExactly75Percent() {
+        Sector sector = mock(Sector.class);
+        when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.75"));
+
+        assertEquals(new BigDecimal("1.10"), pricingService.calculateOccupancyMultiplier(sector));
+    }
+
+    @Test
+    void shouldReturnIncreasedMultiplierWhenOccupancyIsJustAbove50Percent() {
+        Sector sector = mock(Sector.class);
+        when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.5001"));
+
+        assertEquals(new BigDecimal("1.10"), pricingService.calculateOccupancyMultiplier(sector));
+    }
+
+    @Test
+    void shouldReturnHighMultiplierWhenOccupancyIsJustAbove75Percent() {
+        Sector sector = mock(Sector.class);
+        when(sector.getOccupancyRate()).thenReturn(new BigDecimal("0.7501"));
+
+        assertEquals(new BigDecimal("1.25"), pricingService.calculateOccupancyMultiplier(sector));
     }
 }

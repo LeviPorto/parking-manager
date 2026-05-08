@@ -38,16 +38,4 @@ class SectorGatewayIT {
         assertEquals(new BigDecimal("40.50"), found.get().getBasePrice());
         assertEquals(10, found.get().getMaxCapacity());
     }
-
-    @Test
-    void shouldFindSectorByIdForUpdate() {
-        Sector sector = sectorJpaRepository.save(
-                new Sector("B", new BigDecimal("4.10"), 20)
-        );
-
-        Optional<Sector> found = sectorGateway.findByIdForUpdate(sector.getId());
-
-        assertTrue(found.isPresent());
-        assertEquals("B", found.get().getName());
-    }
 }

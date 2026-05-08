@@ -10,9 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface SectorJpaRepository extends JpaRepository<Sector, Long> {
+
     Optional<Sector> findByName(String name);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select s from Sector s where s.id = :id")
-    Optional<Sector> findByIdForUpdate(@Param("id") Long id);
 }

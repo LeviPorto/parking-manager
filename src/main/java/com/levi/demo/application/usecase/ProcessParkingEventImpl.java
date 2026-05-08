@@ -67,16 +67,19 @@ public class ProcessParkingEventImpl implements ProcessParkingEvent {
         Spot spot = spotRepository.findByCoordinatesForUpdate(command.lat(), command.lng())
                 .orElseThrow(() -> new SpotNotFoundException(command.lat(), command.lng()));
 
-        Sector sector = sectorRepository.findByIdForUpdate(spot.getSector().getId())
-                .orElseThrow(() -> new SectorNotFoundException(spot.getSector().getId()));
+        Sector sector = spot.getSector();
 
-        BigDecimal occupancyMultiplier = pricingService
-                .calculateOccupancyMultiplier(sector);
+        if (sector == null) {
+            throw new SectorNotFoundException(spot.getId());
+        }
+
+        BigDecimal occupancyMultiplier = pricingService.calculateOccupancyMultiplier(sector);
+
         log.info("Calculated occupancy multiplier {} for sector {}",
                 occupancyMultiplier, sector.getName());
 
-        sector.reserveSpot();
         spot.occupy(command.licensePlate());
+        sector.reserveSpot();
         session.park(spot, occupancyMultiplier);
 
         sectorRepository.save(sector);
@@ -96,8 +99,11 @@ public class ProcessParkingEventImpl implements ProcessParkingEvent {
                 amount, command.licensePlate());
 
         if (session.getSpot() != null) {
-            session.getSpot().release();
-            spotRepository.save(session.getSpot());
+            Spot spot = spotRepository.findByIdForUpdate(session.getSpot().getId())
+                    .orElseThrow(() -> new SpotNotFoundException(session.getSpot().getId()));
+
+            spot.release();
+            spotRepository.save(spot);
         }
         if (session.getSector() != null) {
             session.getSector().releaseSpot();

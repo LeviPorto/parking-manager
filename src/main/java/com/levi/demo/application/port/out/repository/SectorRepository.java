@@ -6,6 +6,5 @@ import java.util.Optional;
 
 public interface SectorRepository {
     Optional<Sector> findByName(String name);
-    Optional<Sector> findByIdForUpdate(Long id);
     Sector save(Sector sector);
 }
