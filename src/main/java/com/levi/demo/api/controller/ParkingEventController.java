@@ -3,6 +3,7 @@ package com.levi.demo.api.controller;
 import com.levi.demo.api.dto.ParkingEventRequest;
 import com.levi.demo.api.mapper.ParkingEventMapper;
 import com.levi.demo.application.port.in.ProcessParkingEvent;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +24,7 @@ public class ParkingEventController {
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<Void> process(@RequestBody ParkingEventRequest request) {
+    public ResponseEntity<Void> process(@Valid @RequestBody ParkingEventRequest request) {
         log.info("Parking event received: {}", request);
         processParkingEvent.execute(mapper.toCommand(request));
         log.info("Parking event processed: {}", request);

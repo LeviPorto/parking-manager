@@ -4,7 +4,6 @@ CREATE TABLE sectors (
     base_price DECIMAL(10,2) NOT NULL,
     max_capacity INT NOT NULL,
     occupied_count INT NOT NULL DEFAULT 0,
-    closed BOOLEAN NOT NULL DEFAULT FALSE,
 
     CONSTRAINT chk_sectors_base_price_positive
         CHECK (base_price >= 0),

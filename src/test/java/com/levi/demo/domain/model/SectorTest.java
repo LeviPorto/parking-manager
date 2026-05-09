@@ -70,6 +70,5 @@ class SectorTest {
         sector.releaseSpot();
 
         assertEquals(0, sector.getOccupiedCount());
-        assertFalse(sector.getClosed());
     }
 }

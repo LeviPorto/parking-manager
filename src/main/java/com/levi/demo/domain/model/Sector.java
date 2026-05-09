@@ -31,9 +31,6 @@ public class Sector {
     @Column(nullable = false)
     private Integer occupiedCount = 0;
 
-    @Column(nullable = false)
-    private Boolean closed = false;
-
     public Sector(String name, BigDecimal basePrice, Integer maxCapacity) {
         this.name = name;
         this.basePrice = basePrice;
@@ -57,13 +54,11 @@ public class Sector {
             throw new SectorFullException(name);
         }
         occupiedCount++;
-        closed = isFull();
     }
 
     public void releaseSpot() {
         if (occupiedCount > 0) {
             occupiedCount--;
         }
-        closed = false;
     }
 }

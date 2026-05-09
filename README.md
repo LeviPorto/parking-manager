@@ -4,6 +4,8 @@ Backend application responsible for processing parking events in real time, mana
 
 The project was built using Java 21 and Spring Boot following Clean Architecture principles and focusing on transactional consistency, testability and maintainability.
 
+![parking_flow.png](images/parking_flow.png)
+
 ## Tech Stack
 
 - Java 21
@@ -148,10 +150,18 @@ The project contains:
 ### Running
 
 ```bash
-./gradlew test
+./gradlew clean test
 ```
 
 ## Design Explanations
+
+### Architecture Decisions
+
+A simplified Clean Architecture approach was used to balance organization and pragmatism for the scope of this challenge.
+
+JPA and domain entities were intentionally unified to avoid unnecessary mapping complexity and excessive boilerplate.
+
+The project still preserves clear separation of responsibilities between domain, application and infrastructure layers.
 
 ### Idempotency
 
@@ -161,15 +171,15 @@ Parking events are also validated by entity status before processing, helping pr
 
 ### Concurrency and Consistency
 
-Pessimistic locking was applied only at the parking spot level to prevent concurrent occupation or release of the same spot simultaneously.
+Pessimistic locking was applied at the spot level only. For sectors, locking was avoided due to high contention — every parking event hits the same sector rows.
 
-Consistency is additionally reinforced through database constraints and transactional boundaries, ensuring atomic updates and avoiding partial or invalid states during failures or concurrent operations.
+Consistency is instead enforced through database CHECK constraints, preventing invalid states at the database level.
 
 ### Scalability
 
 The application was designed with clear separation of responsibilities and stateless behavior, allowing horizontal scaling of application instances if necessary.
 
-### Revenue endpoint and calculation
+### Revenue Endpoint and Calculation
 
 The `/revenue` endpoint accepts parameters as a JSON request body following the challenge spec. In production, query params would be preferred for better compatibility with proxies and HTTP caches.
 
