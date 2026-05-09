@@ -46,21 +46,21 @@ public class PricingService {
     }
 
     public BigDecimal calculateOccupancyAmount(ParkingSession session, LocalDateTime exitTime) {
-        long minutes = Duration.between(session.getEntryTime(), exitTime).toMinutes();
+        long seconds = Duration.between(session.getEntryTime(), exitTime).toSeconds();
 
-        if (minutes <= FREE_PARKING_TOLERANCE_MINUTES) {
+        if (seconds <= FREE_PARKING_TOLERANCE_MINUTES * 60L) {
             log.info("Parking session {} was free", session.getId());
             return BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
         }
 
-        long hours = (long) Math.ceil(minutes / 60.0);
+        long hours = (long) Math.ceil(seconds / 3600.0);
 
-        BigDecimal entryBasePrice =  session.getEntryBasePrice();
+        BigDecimal entryBasePrice = session.getEntryBasePrice();
         BigDecimal occupancyMultiplier = session.getOccupancyMultiplier();
-        BigDecimal bigDecimalHours =  BigDecimal.valueOf(hours);
+        BigDecimal bigDecimalHours = BigDecimal.valueOf(hours);
 
-        log.info("Session entry base price: {}, occupancy multiplier: {}, "
-                + " and hours: {}", entryBasePrice, occupancyMultiplier, bigDecimalHours);
+        log.info("Session entry base price: {}, occupancy multiplier: {}, and hours: {}",
+                entryBasePrice, occupancyMultiplier, bigDecimalHours);
 
         return entryBasePrice
                 .multiply(occupancyMultiplier)

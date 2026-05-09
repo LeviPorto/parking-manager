@@ -115,8 +115,6 @@ Because of the pricing rule implemented, these sessions result in a final amount
 
 To make revenue testing easier and faster during local executions, the free parking validation rule can be temporarily commented out.
 
-However, even with this change, the difference between `entry_time` and `exit_time` still needs to be greater than 1 minute. Otherwise, the calculated amount may still result in `0` due to time rounding/charge calculation behavior.
-
 ## API Endpoints
 
 ### Parking Webhook
